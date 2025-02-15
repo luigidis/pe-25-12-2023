@@ -93,7 +93,7 @@ void buildArray(char *fileName, Record arrayToBuild[MAX_ARRAY_LENGTH])
 
     while (fgets(line, MAX_STRING_LENGTH, f))
     {
-        char *token = strtok(line, " ");
+        char *token = strtok(line, " \n\t");
         while (token != NULL && i < MAX_ARRAY_LENGTH)
         {
             int len = strlen(token);
@@ -104,7 +104,7 @@ void buildArray(char *fileName, Record arrayToBuild[MAX_ARRAY_LENGTH])
                 arrayToBuild[i].length = strlen(line);
                 i++;
             }
-            token = strtok(NULL, " ");
+            token = strtok(NULL, " \n\t");
         }
 
         if (i >= MAX_ARRAY_LENGTH)
