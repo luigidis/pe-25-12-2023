@@ -26,8 +26,7 @@ void filter(Record array[MAX_ARRAY_LENGTH]);
 void createSet(Record array[MAX_ARRAY_LENGTH]);
 void printArray(Record array[MAX_ARRAY_LENGTH]);
 void save(char *fileOutput, Record array[MAX_ARRAY_LENGTH]);
-void read(char* fileName);
-
+void read(char *fileName);
 
 int main(int argc, char *argv[])
 {
@@ -43,13 +42,13 @@ int main(int argc, char *argv[])
     printArray(arrayToBuild);
 
     printf("==========D==========\n");
-    // createSet(arrayToBuild);
+    createSet(arrayToBuild);
     printf("==========E==========\n");
-    // printArray(arrayToBuild);
+    printArray(arrayToBuild);
     printf("==========F==========\n");
-    // save(p.fileNameOut, arrayToBuild);
+    save(p.fileNameOut, arrayToBuild);
     printf("==========G==========\n");
-    // read(p.fileNameOut);
+    read(p.fileNameOut);
     return 0;
 }
 
@@ -94,15 +93,22 @@ void buildArray(char *fileName, Record arrayToBuild[MAX_ARRAY_LENGTH])
 
     while (fgets(line, MAX_STRING_LENGTH, f))
     {
-        if (strcmp(line, "\n") == 0)
-            continue;
-        strncpy(arrayToBuild[i].key, line, MAX_STRING_LENGTH - 1);
-        arrayToBuild[i].key[MAX_STRING_LENGTH -1] = '\0';
-        arrayToBuild[i].length = strlen(line);
-        i++;
+        char *token = strtok(line, " ");
+        while (token != NULL && i < MAX_ARRAY_LENGTH)
+        {
+            int len = strlen(token);
+            if (len > 0)
+            {
+                strncpy(arrayToBuild[i].key, token, MAX_STRING_LENGTH - 1);
+                arrayToBuild[i].key[MAX_STRING_LENGTH - 1] = '\0';
+                arrayToBuild[i].length = strlen(line);
+                i++;
+            }
+            token = strtok(NULL, " ");
+        }
 
         if (i >= MAX_ARRAY_LENGTH)
-            return;
+            break;
     }
 
     fclose(f);
@@ -153,7 +159,8 @@ void printArray(Record array[MAX_ARRAY_LENGTH])
     {
         if (array[i].length != -1)
         {
-            printf("Stringa stampata su flusso standard: %s\n", array[i].key);
+            printf("Stringa stampata su flusso standard: %s\t", array[i].key);
+            printf("Lenght: %d\n", array[i].length);
         }
     }
 }
@@ -166,33 +173,39 @@ void save(char *fileOutput, Record array[MAX_ARRAY_LENGTH])
 
     for (int i = 0; i < MAX_ARRAY_LENGTH; i++)
     {
-        if(array[i].length != -1)
+        if (array[i].length != -1)
         {
             int length = snprintf(buffer, sizeof(buffer), "Print Array() [%d], [word: %s], [length: %d]\n", i + 1, array[i].key, array[i].length);
-            /*fwrite() richiede: 
+            /*fwrite() richiede:
                 Un puntatore ai dati da scrivere (buffer).
                 La dimensione di ogni elemento da scrivere (sizeof(char)).
                 Il numero di elementi da scrivere (length, la lunghezza della stringa generata).
                 Il file in cui scrivere (f).*/
             fwrite(buffer, sizeof(char), length, f);
-        } 
+        }
     }
 
     fclose(f);
 }
 
 // Funzione che legge e stampa il contenuto del file binari read()
-void read(char* fileName)
+void read(char *fileName)
 {
     FILE *f = fopen(fileName, "r");
-    
+    if (!f)
+        error("Erorr opening file");
+
     char buffer[BUFFSIZE];
-    while(fgets(buffer, MAX_STRING_LENGTH,f))
-    {
-        char *spacePos = strchr(buffer, ' ');
+    while (fgets(buffer, MAX_STRING_LENGTH, f))
+    {   
+        //Trova la posizone di Print Array()
+        char *spacePos = strstr(buffer, "Print Array()");
+        printf("spacePos: %s\n", spacePos);
+
         if (spacePos != NULL)
         {
-            printf("read() %s", spacePos + 1);
+            //Sostituisci "Print Array() con read()"
+            printf("read() %s", spacePos + strlen("Print Array()"));
         }
     }
 
